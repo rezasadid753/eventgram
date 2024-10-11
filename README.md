@@ -66,7 +66,7 @@ Contributions are pivotal to the growth of our project. Your input fuels innovat
 
 ## License
 
-Flasher is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the MIT License. See the `LICENSE` file for details.
 
 ## Contact
 
