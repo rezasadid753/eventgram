@@ -1,5 +1,7 @@
 # 📅 EventGram – Your Telegram Event Assistant
 
+Meet EventGram - your smart Telegram bot for effortless event planning. Create, manage, and share events with ease, right inside Telegram.
+
 ## 🚀 About The Project
 
 Say goodbye to messy event planning and hello to **EventGram** – your friendly, automated Telegram event assistant! Whether you're managing a club, a study group, or organizing meetups, EventGram makes event creation and management a breeze.
