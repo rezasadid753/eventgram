@@ -87,44 +87,106 @@ With the option to send announcements to a specific **topic** in a supergroup, y
 
 ```mermaid
 flowchart TD
-    A[Telegram sends update to webhook] --> B[Parse incoming JSON]
-    B --> C{Message or Callback?}
-    C -- Message --> D[Extract chat_id, message_text, username]
-    C -- Callback --> E[Extract data from callback]
+    A[Start] --> B[Receive Webhook Data]
+    B --> C{Is Message Valid?}
+    C -- Yes --> D[Get User and Chat Details]
+    C -- No --> E[Send Error Message]
+    E --> F[End]
+
+    D --> G{Is User in Group?}
+    G -- Yes --> H{Is Chat Type Group?}
+    G -- No --> I[Send Access Denied Message]
+    I --> F[End]
+
+    H -- Yes --> J{Is Command /start or /upcoming?}
+    H -- No --> K[Ignore Message]
+    K --> F[End]
+
+    J -- Yes --> L[Send Welcome Message with Inline Keyboard]
+    J -- No --> M[Ignore Message]
+    M --> F[End]
+
+    L --> N{Is Command /start?}
+    N -- Yes --> O[Check User in Database]
+    N -- No --> P[Ignore Message]
+    P --> F[End]
+
+    O -- New User --> Q[Insert User into Database]
+    O -- Existing User --> R[Update User Step to 0]
+    Q --> S[Send Welcome Message with Options]
+    R --> S
+    S --> T{User  Chooses Create Announcement?}
     
-    D --> F{Starts with '/'}
-    F -- Yes --> G[Route to command handler]
-    F -- No --> H[Store input in context (for multi-step flows)]
+    T -- Yes --> U[Generate Unique Event ID]
+    U --> V[Insert Event ID into Database]
+    V --> W[Prompt for Presenter's Name]
+    W --> X[Save Presenter's Name]
+    X --> Y[Prompt for Year Selection]
+    
+    Y --> Z{Is Year Valid?}
+    Z -- Yes --> AA[Save Year]
+    AA --> AB[Prompt for Month Selection]
+    Z -- No --> AC[Send Invalid Year Message]
+    AC --> F[End]
 
-    G --> G1{/start: send welcome}
-    G --> G2{/add_event: check admin}
-    G2 --> G2a{Is admin?}
-    G2a -- Yes --> G2b[Set context: waiting for event name]
-    G2a -- No --> G2c[Send access denied]
+    AB --> AD{Is Month Valid?}
+    AD -- Yes --> AE[Save Month]
+    AE --> AF[Prompt for Day Selection]
+    AD -- No --> AG[Send Invalid Month Message]
+    AG --> F[End]
 
-    H --> H1{In context: waiting for event name?}
-    H1 -- Yes --> H2[Store event name and ask for date]
-    H2 --> H3[Wait for date input]
-    H3 --> H4[Store date and ask for location]
-    H4 --> H5[Store location and ask for description]
-    H5 --> H6[Store description and ask for image URL]
-    H6 --> H7[Store URL and insert event into DB]
-    H7 --> H8[Send success confirmation]
+    AF --> AH{Is Day Valid?}
+    AH -- Yes --> AI[Save Day]
+    AI --> AJ[Prompt for Hour Selection]
+    AH -- No --> AK[Send Invalid Day Message]
+    AK --> F[End]
 
-    G --> G3{/list_events: query DB}
-    G3 --> G3a{Events found?}
-    G3a -- Yes --> G3b[Format and send list]
-    G3a -- No --> G3c[Send "no events" message]
+    AJ --> AL{Is Hour Valid?}
+    AL -- Yes --> AM[Save Hour]
+    AM --> AN[Prompt for Minute Selection]
+    AL -- No --> AO[Send Invalid Hour Message]
+    AO --> F[End]
 
-    G --> G4{/delete_event: check admin}
-    G4 --> G4a{Is admin?}
-    G4a -- Yes --> G4b[Query events and send inline buttons]
-    G4a -- No --> G4c[Send access denied]
+    AN --> AP{Is Minute Valid?}
+    AP -- Yes --> AQ[Save Minute]
+    AQ --> AR[Prompt for Duration Selection]
+    AP -- No --> AS[Send Invalid Minute Message]
+    AS --> F[End]
 
-    E --> I[Match callback with event ID for deletion]
-    I --> J[Delete event from DB]
-    J --> K[Send deletion success message]
-```
+    AR --> AT{Is Duration Valid?}
+    AT -- Yes --> AU[Save Duration]
+    AU --> AV[Prompt for Event Type]
+    AT -- No --> AW[Send Invalid Duration Message]
+    AW --> F[End]
+
+    AV --> AX{Is Type Online or In-Person?}
+    AX -- Online --> AY[Prompt for Link]
+    AX -- In-Person --> AZ[Prompt for Location]
+
+    AY --> BA[Save Link]
+    AZ --> BB[Save Location]
+    BB --> BC[Prompt for Topic]
+    BA --> BC
+
+    BC --> BD[Save Topic]
+    BD --> BE[Prompt for Notes]
+    
+    BE --> BF{Are Notes Provided?}
+    BF -- Yes --> BG[Save Notes]
+    BF -- No --> BH[Skip Notes]
+    
+    BG --> BI[Prepare Announcement Overview]
+    BH --> BI
+
+    BI --> BJ[Send Confirmation Preview]
+    BJ --> BK{Is Confirmation Received?}
+    
+    BK -- Yes --> BL[Publish Event]
+    BL --> BM[Send Success Message]
+    BK -- No --> BN[Cancel Process]
+    BN --> F[End]
+
+    F[End]
 
 ---
 
