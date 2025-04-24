@@ -83,5 +83,50 @@ With the option to send announcements to a specific **topic** in a supergroup, y
 
 ---
 
+## 🧬 How It Works
+
+```mermaid
+flowchart TD
+    A[Telegram sends update to webhook] --> B[Parse incoming JSON]
+    B --> C{Message or Callback?}
+    C -- Message --> D[Extract chat_id, message_text, username]
+    C -- Callback --> E[Extract data from callback]
+    
+    D --> F{Starts with '/'}
+    F -- Yes --> G[Route to command handler]
+    F -- No --> H[Store input in context (for multi-step flows)]
+
+    G --> G1{/start: send welcome}
+    G --> G2{/add_event: check admin}
+    G2 --> G2a{Is admin?}
+    G2a -- Yes --> G2b[Set context: waiting for event name]
+    G2a -- No --> G2c[Send access denied]
+
+    H --> H1{In context: waiting for event name?}
+    H1 -- Yes --> H2[Store event name and ask for date]
+    H2 --> H3[Wait for date input]
+    H3 --> H4[Store date and ask for location]
+    H4 --> H5[Store location and ask for description]
+    H5 --> H6[Store description and ask for image URL]
+    H6 --> H7[Store URL and insert event into DB]
+    H7 --> H8[Send success confirmation]
+
+    G --> G3{/list_events: query DB}
+    G3 --> G3a{Events found?}
+    G3a -- Yes --> G3b[Format and send list]
+    G3a -- No --> G3c[Send "no events" message]
+
+    G --> G4{/delete_event: check admin}
+    G4 --> G4a{Is admin?}
+    G4a -- Yes --> G4b[Query events and send inline buttons]
+    G4a -- No --> G4c[Send access denied]
+
+    E --> I[Match callback with event ID for deletion]
+    I --> J[Delete event from DB]
+    J --> K[Send deletion success message]
+```
+
+---
+
 ## 🌍 Ready to get started? 
 Try **EventGram** now and simplify your event planning in just a few steps. Your members will thank you! 🎉
